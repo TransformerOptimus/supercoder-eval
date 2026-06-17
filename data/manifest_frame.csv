@@ -1,0 +1,92 @@
+instance_id,benchmark,language,file_count_bucket,span_bin,task_category
+apache__dubbo-3622,polybench,java,1,single,Bug Fix
+apache__dubbo-8414,polybench,java,3+,multi,Bug Fix
+apache__rocketmq-4122,polybench,java,2,multi,Feature
+apache__rocketmq-7420,polybench,java,2,multi,Refactoring
+apache__rocketmq-7426,polybench,java,1,single,Bug Fix
+apache__rocketmq-7563,polybench,java,2,multi,Bug Fix
+apache__rocketmq-7655,polybench,java,1,single,Feature
+apache__rocketmq-7712,polybench,java,1,single,Bug Fix
+apache__rocketmq-7745,polybench,java,1,single,Bug Fix
+apache__rocketmq-7823,polybench,java,1,single,Bug Fix
+apache__rocketmq-7964,polybench,java,1,single,Feature
+apolloconfig__apollo-1894,polybench,java,1,single,Bug Fix
+google__gson-2071,polybench,java,1,single,Bug Fix
+google__gson-2134,polybench,java,1,single,Bug Fix
+google__gson-2158,polybench,java,2,multi,Bug Fix
+google__gson-2167,polybench,java,2,multi,Bug Fix
+google__guava-5696,polybench,java,2,multi,Bug Fix
+huggingface__transformers-13989,polybench,python,3+,multi,Feature
+huggingface__transformers-15473,polybench,python,3+,multi,Feature
+huggingface__transformers-15795,polybench,python,1,single,Feature
+huggingface__transformers-16198,polybench,python,1,single,Bug Fix
+huggingface__transformers-24238,polybench,python,1,single,Bug Fix
+huggingface__transformers-25884,polybench,python,1,single,Bug Fix
+huggingface__transformers-27114,polybench,python,1,single,Bug Fix
+huggingface__transformers-27717,polybench,python,3+,multi,Feature
+huggingface__transformers-28115,polybench,python,2,multi,Bug Fix
+huggingface__transformers-30556,polybench,python,2,multi,Bug Fix
+huggingface__transformers-3716,polybench,python,2,multi,Bug Fix
+huggingface__transformers-6098,polybench,python,1,single,Bug Fix
+huggingface__transformers-7075,polybench,python,3+,multi,Refactoring
+huggingface__transformers-7374,polybench,python,2,multi,Bug Fix
+keras-team__keras-18553,polybench,python,1,single,Bug Fix
+keras-team__keras-19636,polybench,python,1,single,Bug Fix
+keras-team__keras-19844,polybench,python,2,multi,Bug Fix
+keras-team__keras-19863,polybench,python,1,single,Bug Fix
+trinodb__trino-1512,polybench,java,1,single,Bug Fix
+trinodb__trino-2081,polybench,java,1,single,Bug Fix
+trinodb__trino-3859,polybench,java,2,multi,Bug Fix
+instance_ansible__ansible-185d41031660a676c43fbb781cd1335902024bfe-vba6da65a0f3baefda7a058ebbd0a8dcafb8512f5,pro,python,2,multi,
+instance_ansible__ansible-5640093f1ca63fd6af231cc8a7fb7d40e1907b8c-vba6da65a0f3baefda7a058ebbd0a8dcafb8512f5,pro,python,3+,multi,
+instance_ansible__ansible-5f4e332e3762999d94af27746db29ff1729252c1-v0f01c69f1e2528b935359cfe578530722bca2c59,pro,python,1,single,
+instance_ansible__ansible-6cc97447aac5816745278f3735af128afb255c81-v0f01c69f1e2528b935359cfe578530722bca2c59,pro,python,3+,multi,
+instance_ansible__ansible-83fb24b923064d3576d473747ebbe62e4535c9e3-vba6da65a0f3baefda7a058ebbd0a8dcafb8512f5,pro,python,1,single,
+instance_ansible__ansible-a1569ea4ca6af5480cf0b7b3135f5e12add28a44-v0f01c69f1e2528b935359cfe578530722bca2c59,pro,python,1,single,
+instance_flipt-io__flipt-0b119520afca1cf25c470ff4288c464d4510b944,pro,go,3+,multi,
+instance_flipt-io__flipt-1737085488ecdcd3299c8e61af45a8976d457b7e,pro,go,2,multi,
+instance_flipt-io__flipt-2ce8a0331e8a8f63f2c1b555db8277ffe5aa2e63,pro,go,3+,multi,
+instance_flipt-io__flipt-5ffba3406a7993d97ced4cc13658bee66150fcca,pro,go,2,multi,
+instance_flipt-io__flipt-6fe76d024ee0c50ddb09c86f4ae0bd4c208fd65f,pro,go,1,single,
+instance_flipt-io__flipt-72d06db14d58692bfb4d07b1aa745a37b35956f3,pro,go,1,single,
+instance_flipt-io__flipt-b4bb5e13006a729bc0eed8fe6ea18cff54acdacb,pro,go,3+,multi,
+instance_flipt-io__flipt-cd2f3b0a9d4d8b8a6d3d56afab65851ecdc408e8,pro,go,3+,multi,
+instance_flipt-io__flipt-d966559200183b713cdf3ea5007a7e0ba86a5afb,pro,go,3+,multi,
+instance_flipt-io__flipt-e2bd19dafa7166c96b082fb2a59eb54b4be0d778,pro,go,3+,multi,
+instance_future-architect__vuls-17ae386d1e185ba742eea4668ca77642e22b54c4,pro,go,1,single,
+instance_future-architect__vuls-3f8de0268376e1f0fa6d9d61abb0d9d3d580ea7d,pro,go,3+,multi,
+instance_future-architect__vuls-407407d306e9431d6aa0ab566baa6e44e5ba2904,pro,go,1,single,
+instance_future-architect__vuls-457a3a9627fb9a0800d0aecf1d4713fb634a9011,pro,go,1,single,
+instance_future-architect__vuls-50580f6e98eeb36f53f27222f7f4fdfea0b21e8d,pro,go,1,single,
+instance_future-architect__vuls-8659668177f1feb65963db7a967347a79c5f9c40,pro,go,3+,multi,
+instance_future-architect__vuls-999529a05b202b0fd29c6fca5039a4c47a3766bb,pro,go,1,single,
+instance_future-architect__vuls-bff6b7552370b55ff76d474860eead4ab5de785a-v1151a6325649aaf997cd541ebe533b53fddf1b07,pro,go,1,single,
+instance_future-architect__vuls-e52fa8d6ed1d23e36f2a86e5d3efe9aa057a1b0d,pro,go,1,single,
+instance_gravitational__teleport-1b08e7d0dbe68fe530a0f08ad408ec198b7c53fc-vee9b09fb20c43af7e520f57e9239bbcf46b7113d,pro,go,1,single,
+instance_gravitational__teleport-3fa6904377c006497169945428e8197158667910-v626ec2a48416b10a88641359a169d99e935ff037,pro,go,3+,multi,
+instance_gravitational__teleport-6eaaf3a27e64f4ef4ef855bd35d7ec338cf17460-v626ec2a48416b10a88641359a169d99e935ff037,pro,go,3+,multi,
+instance_gravitational__teleport-b1bcd8b90c474a35bb11cc3ef4cc8941e1f8eab2-vee9b09fb20c43af7e520f57e9239bbcf46b7113d,pro,go,1,single,
+instance_gravitational__teleport-cb712e3f0b06dadc679f895daef8072cae400c26-vee9b09fb20c43af7e520f57e9239bbcf46b7113d,pro,go,3+,multi,
+instance_gravitational__teleport-d873ea4fa67d3132eccba39213c1ca2f52064dcc-vce94f93ad1030e3136852817f2423c1b3ac37bc4,pro,go,3+,multi,
+instance_internetarchive__openlibrary-1be7de788a444f6255e89c10ef6aa608550604a8-v29f82c9cf21d57b242f8d8b0e541525d259e2d63,pro,python,3+,multi,
+instance_internetarchive__openlibrary-4b7ea2977be2747496ba792a678940baa985f7ea-v0f5aece3601a5b4419f7ccec1dbda2071be28ee4,pro,python,3+,multi,
+instance_internetarchive__openlibrary-7edd1ef09d91fe0b435707633c5cc9af41dedddf-v76304ecdb3a5954fcf13feb710e8c40fcf24b73c,pro,python,2,multi,
+instance_internetarchive__openlibrary-a48fd6ba9482c527602bc081491d9e8ae6e8226c-vfa6ff903cb27f336e17654595dd900fa943dcd91,pro,python,1,single,
+instance_internetarchive__openlibrary-fad4a40acf5ff5f06cd7441a5c7baf41a7d81fe4-vfa6ff903cb27f336e17654595dd900fa943dcd91,pro,python,2,multi,
+instance_navidrome__navidrome-09ae41a2da66264c60ef307882362d2e2d8d8b89,pro,go,3+,multi,
+instance_navidrome__navidrome-1e96b858a91c640fe64e84c5e5ad8cc0954ea38d,pro,go,1,single,
+instance_navidrome__navidrome-3bc9e75b2843f91f6a1e9b604e321c2bd4fd442a,pro,go,2,multi,
+instance_navidrome__navidrome-56303cde23a4122d2447cbb266f942601a78d7e4,pro,go,1,single,
+instance_navidrome__navidrome-6c6223f2f9db2c8c253e0d40a192e3519c9037d1,pro,go,1,single,
+instance_navidrome__navidrome-c90468b895f6171e33e937ff20dc915c995274f0,pro,go,3+,multi,
+instance_navidrome__navidrome-d21932bd1b2379b0ebca2d19e5d8bae91040268a,pro,go,3+,multi,
+instance_navidrome__navidrome-d5df102f9f97c21715c756069c9e141da2a422dc,pro,go,3+,multi,
+instance_navidrome__navidrome-de90152a7173039677ac808f5bfb1e644d761336,pro,go,1,single,
+instance_qutebrowser__qutebrowser-1943fa072ec3df5a87e18a23b0916f134c131016-vafb3e8e01b31319c66c4e666b8a3b1d8ba55db24,pro,python,3+,multi,
+instance_qutebrowser__qutebrowser-1af602b258b97aaba69d2585ed499d95e2303ac2-v2ef375ac784985212b1805e1d0431dc8f1b3c171,pro,python,1,single,
+instance_qutebrowser__qutebrowser-36ade4bba504eb96f05d32ceab9972df7eb17bcc-v2ef375ac784985212b1805e1d0431dc8f1b3c171,pro,python,1,single,
+instance_qutebrowser__qutebrowser-479aa075ac79dc975e2e949e188a328e95bf78ff-vc2f56a753b62a190ddb23cd330c257b9cf560d12,pro,python,1,single,
+instance_qutebrowser__qutebrowser-9b71c1ea67a9e7eb70dd83214d881c2031db6541-v363c8a7e5ccdf6968fc7ab84a2053ac78036691d,pro,python,1,single,
+instance_qutebrowser__qutebrowser-9ed748effa8f3bcd804612d9291da017b514e12f-v363c8a7e5ccdf6968fc7ab84a2053ac78036691d,pro,python,1,single,
+instance_qutebrowser__qutebrowser-bedc9f7fadf93f83d8dee95feeecb9922b6f063f-v2ef375ac784985212b1805e1d0431dc8f1b3c171,pro,python,3+,multi,
+instance_qutebrowser__qutebrowser-fcfa069a06ade76d91bac38127f3235c13d78eb1-v5fc38aaf22415ab0b70567368332beee7955b367,pro,python,1,single,

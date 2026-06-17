@@ -22,8 +22,8 @@ authors:
     affiliation: "SuperAGI Research"
 type: software
 license: MIT
-repository-code: "https://github.com/TransformerOptimus/supercoder-eval" #TODO: add the correct repository
-date-released: "2026-06-17" #TODO: add the correct date
+repository-code: "https://github.com/TransformerOptimus/supercoder-eval"
+date-released: "2026-06-17"
 keywords:
   - coding-agents
   - code-retrieval

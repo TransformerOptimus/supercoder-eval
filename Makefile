@@ -2,7 +2,7 @@
 .PHONY: lint lint-citation lint-paper smoke help
 
 help:
-	@echo "make lint            run all lint checks"
+	@echo "make lint            run lint-citation (lint-paper is opt-in to keep lint fast)"
 	@echo "make lint-citation   fail if CITATION.cff still has literal TODO placeholders"
 	@echo "make lint-paper      build the paper once (cd paper && make)"
 	@echo "make smoke           run analysis scripts as a release smoke test"

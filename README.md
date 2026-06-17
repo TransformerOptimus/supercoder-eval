@@ -169,8 +169,10 @@ for the analysis denominator (741 of the 819 rows are legit; 78 are excluded).
   views*.
 
 `data/manifest_frame.csv` adds `span_bin` and `task_category` per instance for the stratified
-cuts. `data/pilot/pilot_results_public.db` is the **deprecated** wave-1 pilot — same schema,
-**do not merge** with the main study.
+cuts. `data/pilot/pilot_results_public.db` is the **deprecated** wave-1 pilot. Its single
+table is `results_appendix_pilot` (vs. `results` in the main DB) and carries an extra
+`appendix_pilot` column (always `1`) to tag pilot rows if the two ever get loaded together;
+all other columns match the main schema. **Do not merge** with the main study.
 
 **`status_taxonomy` values** (819 rows; `legit` denominator = 741, excluded = 78):
 

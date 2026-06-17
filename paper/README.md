@@ -43,7 +43,6 @@ paper/
 │   └── 08_appendices.tex     (Not included in the build; see main.tex.)
 ├── figures/                  Generated figures (inline TikZ — no PDF/PNG assets).
 ├── tables/                   Standalone table files for \input.
-├── appendix/                 Released-artifact SQL queries.
 ├── references.bib            Bibliography. Cite-key list at top.
 ├── Makefile                  Build helpers.
 └── README.md                 This file.

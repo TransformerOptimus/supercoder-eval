@@ -1,0 +1,88 @@
+% =========================================================================
+% §1 Introduction
+% Budget: ~1.5 pp
+% Drafting order: LATE (after Results, Discussion, Related Work are stable).
+%
+% Content blueprint (RESEARCH_paper_outline.md §4 / §1):
+%   - Coding agents now interleave LLMs with retrieval; retrieval
+%     implementations vary widely (agentic grep, file-dependency PageRank,
+%     semantic search, structural codebase index).
+%   - Open empirical question: inside a fixed coding-agent harness on a fixed
+%     model, does adding a structural codebase index actually change cost
+%     or resolve?
+%   - Scope: open-source harnesses; one model held fixed (Opus 4.7);
+%     causal ON/OFF ablation + cross-harness comparator.
+%   - Headline preview (multi-seed, three seeds): View B acc@5 ablation
+%     +39.6 pp paired Wilcoxon p<0.0001, resolve ablation +7.9 pp paired
+%     Wilcoxon p=0.003, lower $/solved with per-cell cost statistically
+%     null. Cross-harness vs OpenCode marginal at p=0.087 / p=0.080.
+%     [Updated 2026-06-16 after multi-seed analysis.]
+%   - Contribution statement: first leak-audited, model-controlled, causal
+%     ablation of a shipped structural codebase index in a coding-agent
+%     harness.
+%
+% Constraints:
+%   - Closed-source harnesses (Claude Code, Cursor, Windsurf) out of scope by
+%     design; called out in one sentence.
+%   - No motivating-example opener. (Decision: Option C.)
+% =========================================================================
+
+\section{Introduction}
+\label{sec:intro}
+
+Coding agents now interleave LLMs with retrieval over the working repository, and retrieval
+implementations vary widely across deployed harnesses. The implementations span a
+spectrum: agentic grep over the working copy, file-dependency repo maps, semantic and
+graph search, and structural codebase indices built once per repository
+(\S\ref{sec:related}). Inside a fixed coding-agent harness on a fixed model, does adding a
+structural codebase index actually change cost or resolve? We answer the question for
+open-source harnesses with the model held fixed (Claude Opus~4.7
+\citep{claudeopus47}, \S\ref{sec:design-model}); closed-source harnesses (Claude Code, Cursor, Windsurf) are out
+of scope by design. The experimental design isolates the index causally by toggling it on
+and off inside one harness while everything else stays identical, and cross-checks the
+result against an agentic-grep comparator (\S\ref{sec:design-arms}).
+
+The field has not had a clean answer because controlled measurements are scarce. Most
+prior work either compares whole harnesses, where retrieval is confounded with prompt,
+tool surface, and control loop, or evaluates retrieval components in isolation against
+acc@$k$, without the downstream agentic loop that turns ranking into a fix. The
+question whether ``grep is all you need'' has been asked recently in the agentic-search
+literature for memory-style document retrieval \citep{grepallyouneed2026}, with grep
+favored over vector retrieval; we ask the code-task counterpart, where the candidate
+beyond grep is not a vector index but a structural codebase index (semantic + lexical +
+call-graph). A structural codebase index is also expensive to build and operate, so if
+the resolve gain is small and the cost premium is large, the index does not pay for
+itself in a deployment. The integrity bar for benchmark evaluation has risen in
+parallel: recent audits documented solution leakage in issue text
+\citep{swebenchplus2024}, memorization of in-benchmark repositories
+\citep{swebenchillusion2025}, and substantial score inflation from formal issue text
+relative to realistic user phrasing \citep{savingswebench2025}, so any positive result
+needs to survive a leak audit before it counts.
+
+Three arms ran against the same SWE-PolyBench Verified and SWE-bench Pro public instances
+(91 instances; Go, Java, Python) with Claude Opus~4.7 fixed throughout, across three seeds:
+SC-ON (the SuperCoder \citep{supercoder2024} harness with the index on), SC-OFF (the same
+harness with the two engine tools removed, every other component identical), and OpenCode
+\citep{opencode2025} (an agentic-grep comparator). Every cell ran
+inside a hardened per-task sandbox with a fail-closed git scrub and a post-run leak audit
+(\S\ref{sec:integrity}). On the causal within-harness ablation
+(\S\ref{sec:results-ablation}), the index moves View~B acc@5 from 44.3\% to 84.5\% across
+seeds (paired Wilcoxon $p<0.0001$) and resolve from 41.9\% to 50.4\% (paired Wilcoxon
+$p=0.003$), and yields lower cost per solve with a statistically null per-cell cost
+difference. On the cross-harness validity check
+(\S\ref{sec:results-crossharness}), SC-ON matches or modestly favors OpenCode on resolve
+(50.4\% vs.\ 45.3\% mean, paired Wilcoxon $p=0.087$) and on View~B acc@5
+(84.5\% vs.\ 75.3\% mean, paired Wilcoxon $p=0.080$) at no cost penalty. The
+structural codebase index does not duplicate behavior that competent agentic grep already
+reaches; at minimum, it does not regress the agent.
+
+We report the first leak-audited, model-controlled, causal ablation of a shipped
+structural codebase index inside a coding-agent harness, paired with a cross-harness
+validity check against an agentic-grep comparator. The result reframes the deployment
+question from ``is a structural codebase index too expensive to run alongside agentic
+grep'' (on these benchmarks, the answer is no: \$2.30 mean across seeds against
+OpenCode's \$2.92, favorable on \$/solved) to ``does the workload include multi-file
+changes where structural ranking pays off'' (\S\ref{sec:discussion}). Released alongside
+the paper are the per-cell exclusion ledger (\S\ref{sec:integrity-ledger}), the leak-audit
+script, the dual-view localization extractor, and the full results database, so every
+number in \S\ref{sec:results} is reproducible from the released artifacts.

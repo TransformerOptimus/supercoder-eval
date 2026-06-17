@@ -1,0 +1,73 @@
+% =========================================================================
+% §7 Discussion (+ Conclusion)
+% Budget: ~1.0 pp
+% Drafting order: After Results + Integrity.
+%
+% Content blueprint (multi-seed rewrite, 2026-06-16):
+%   - What the ablation says: index moves localization a lot
+%     (+39.6 pp paired Wilcoxon, p<0.0001), moves resolve with
+%     statistical separation (+7.9 pp, p=0.003), cost-neutral per cell
+%     and favorable on $/solved. Causal because everything else held
+%     identical across three seeds.
+%   - Cross-harness validity: SC-ON matches or modestly favors OpenCode
+%     on resolve (p=0.087) and View B acc@5 (p=0.080) at no cost penalty.
+%     Reframe: structural codebase index is not duplicating agentic grep
+%     behavior; at minimum it does not regress the agent.
+%   - Where the index does NOT help: cross-harness comparisons are
+%     marginal at conventional thresholds, directionally in SC-ON's favor
+%     across seeds. The within-harness ablation is the cleaner read.
+%   - Implications for harness design: when does a structural codebase
+%     index pay off (multi-file changes), when doesn't it.
+%   - Conclusion paragraph closes the doc.
+%
+% Constraints:
+%   - Conclusion is ONE short paragraph; not a separate section.
+%   - Stay scientific. Marketing reuses these numbers separately.
+% =========================================================================
+
+\section{Discussion}
+\label{sec:discussion}
+
+\textbf{What the ablation says.} SC-ON and SC-OFF differ only in the two engine tools
+(\S\ref{sec:design-arms}, \S\ref{sec:system-engine}); model, prompts, sandbox, scorer,
+seeds, caps, and the remaining tool set are held identical, so the within-harness deltas
+read causally on the index. View~B acc@5 moves from 44.3\% to 84.5\% (paired Wilcoxon
+$p<0.0001$), and resolve moves from 41.9\% to 50.4\% (paired $p=0.003$); per-cell mean
+cost is statistically null ($p=0.73$) while turns and tokens both fall significantly. The
+substantive read is that the index moves localization a lot, moves resolve significantly,
+and is cost-neutral at the cell level while favorable on \$/solved.
+
+\textbf{Cross-harness validity.} SC-ON matches or modestly favors OpenCode on resolve
+($p=0.087$) and on View~B acc@5 ($p=0.080$), directionally in SC-ON's favor across seeds
+but not at conventional significance. The structural codebase index does not duplicate
+behavior that competent agentic grep already reaches; at minimum, against a competent
+grep-and-read comparator, the index does not regress the agent on the metrics that decide
+the task. The cross-harness effort gap is where the two arms separate cleanly: SC-ON
+converges in fewer turns and fewer tokens (both $p<0.0001$, magnitudes in
+Table~\ref{tab:headline}).
+
+\textbf{Where the index does not help.} The ON vs.\ OpenCode comparisons on resolve and
+View~B acc@5 are marginal at conventional significance thresholds (\S\ref{sec:results-crossharness});
+the within-harness ablation is the cleanest read of what the index actually contributes.
+
+\textbf{Implications for harness design.} We treat the implications as conditional
+observations, not prescriptions. The largest causal localization gain in our data sits in
+the 3-or-more-file gold bucket (\S\ref{sec:results-heterogeneity},
+Figure~\ref{fig:filecount}), consistent with the call-graph intuition: when the change
+spans files, a structural index that ranks paths by reachability pays off more than
+agentic grep over the working copy. The cost-favorable finding simplifies the deployment
+question: at a fixed model and comparable caps, a structural codebase index is the lower
+\$/solved arm on these benchmarks, so the per-task win comes from localization quality
+and the downstream turn savings it enables.
+
+\paragraph{Conclusion.} This study reports a leak-audited, model-controlled, causal
+ablation of a shipped structural codebase index inside a coding-agent harness, paired
+with a cross-harness validity check against an agentic-grep comparator. The index
+causally moves localization substantially and resolve with statistical separation
+(50.4\% vs.\ 41.9\% on resolve, paired Wilcoxon $p=0.003$), at no per-cell cost penalty
+and lower \$/solved than either the within-harness OFF arm or the OpenCode comparator. The released artifacts (the
+exclusion ledger, the audit script, and the dual-view localization extractor) back the
+integrity claims in \S\ref{sec:integrity} and the result numbers in \S\ref{sec:results}.
+At this model and on these benchmarks, the deployment question for a structural codebase
+index is not whether it is too expensive to run, but whether the workload includes
+multi-file changes where structural ranking pays off.

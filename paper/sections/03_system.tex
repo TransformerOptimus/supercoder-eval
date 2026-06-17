@@ -1,0 +1,171 @@
+% =========================================================================
+% §3 System Description (SuperCoder + Context Engine)
+% Budget: ~2.5 pp
+% Drafting order: After Results (so we know which mechanics matter).
+%
+% Content blueprint (RESEARCH_paper_outline.md §4 / §3):
+%   - 3.1 SuperCoder harness; agent loop, tools, modes (Ask/Plan/Coding),
+%     turn structure.
+%   - 3.2 Context engine (what gets ablated); index construction
+%     (tree-sitter parse, call-graph, embeddings, BM25); agent-facing tools
+%     (codebase_search, codebase_graph); what each returns.
+%     ON vs OFF concretely: ON = both tools available; OFF = tools removed
+%     from the toolset, all else identical.
+%   - 3.3 Comparator: OpenCode (half-page); agent loop, tools, retrieval
+%     approach (ripgrep + read), what's not present (no persistent index).
+%
+% Figures (inline TikZ; promote to figures/ later if reused):
+%   - fig:engine-pipeline; index construction + retrieval flow.
+%
+% Constraints:
+%   - Describe, do not pitch. Studied subject, not contribution.
+%   - Stay within ~2.5 pp; spill detail into Appendix if needed.
+%   - No vendor names (Qdrant/FalkorDB/Kafka/Postgres); tree-sitter only.
+% =========================================================================
+
+\section{System}
+\label{sec:system}
+
+This section describes the studied subject: the SuperCoder coding-agent harness,
+the context engine that the ON/OFF arms ablate, and the OpenCode comparator that
+the cross-harness arm runs.
+
+\subsection{SuperCoder harness}
+\label{sec:system-harness}
+
+SuperCoder \citep{supercoder2024} is a coding agent built around a single-LLM control loop. The
+shipped binary supports three modes (Ask, Plan, Coding); the evaluation runs in Coding
+mode, the only mode that may write files or execute shell commands, so all
+mechanics described below refer to the Coding-mode loop. A provider gateway sits
+in front of the LLM client and captures token-level cost per turn uniformly across
+arms (\S\ref{sec:design-sandbox}).
+
+Each turn assembles a prompt (system instructions, tool schema, message history)
+and issues a single LLM call. If the model emits tool calls, the harness
+dispatches them, awaits results, and appends them to the message history; if it
+emits text with no tool calls, the loop terminates. The reasoning-and-acting
+posture follows the ReAct \citep{react2023} pattern, and the tool-call interface
+follows the function-calling line introduced by Toolformer \citep{toolformer2023}.
+Multiple tool calls in a single response are executed in parallel. If the rolling token count exceeds a
+threshold, the harness compacts the message history by summarizing older turns;
+the compaction step is disclosed for reproducibility but is not load-bearing for
+the ablation. The loop terminates when (a) the model emits no tool calls,
+(b) a configured per-cell turn budget is exhausted, or (c) the 30-minute
+per-cell wall-clock cap (\S\ref{sec:design-sandbox}) elapses.
+
+The agent calls a fixed tool set: \texttt{read}, \texttt{write}, \texttt{edit},
+\texttt{bash}, \texttt{git}, \texttt{grep}, and \texttt{glob}, plus task-management
+tools (\texttt{todo\_write}, \texttt{apply\_patch}). All of these are identical
+across SC-ON and SC-OFF. The two context-engine tools, \texttt{codebase\_search}
+and \texttt{codebase\_graph}, are available only in SC-ON; SC-OFF removes those
+two tools from the schema and changes nothing else
+(\S\ref{sec:system-engine}).
+
+\subsection{Context engine}
+\label{sec:system-engine}
+
+The context engine is a separate service that the agent calls through two tools.
+It maintains a per-repository index that is built once on first contact and
+updated incrementally on subsequent runs via Merkle-tree diffs over the working
+copy, so a source edit invalidates and re-indexes only the affected chunks
+rather than the whole repository. Each cell in this study starts from a fresh
+sandbox, so every arm exercises the build path; the incremental-update path is
+part of the engine but not load-bearing in the run. The index has three
+components: a \textbf{vector index} of code-chunk embeddings for semantic
+similarity, a \textbf{graph index} of definitions and call edges for structural
+reachability, and a \textbf{lexical (BM25) index} of identifiers and tokens for
+exact-match recall. Index construction begins with \texttt{tree-sitter} parsing
+per source file; definitions, references, and call edges are extracted from the
+resulting AST and chunked for embedding.
+
+Figure~\ref{fig:engine-pipeline} sketches the indexing pipeline and the retrieval
+path. The components are named at the level the public eval repo can support
+(\S\ref{sec:integrity-ledger}); the backend service that hosts the three indices
+is internal and not part of the released artifact.
+
+\begin{figure}[!tbp]
+  \centering
+  \resizebox{\linewidth}{!}{%
+  \begin{tikzpicture}[
+      x=1.3cm, y=1.15cm,
+      every node/.style={font=\small},
+      box/.style={draw, rounded corners=3pt, align=center,
+                  inner sep=6pt, minimum height=13mm,
+                  text width=36mm, font=\small},
+      idx/.style={box, fill=black!5},
+      tool/.style={box, fill=black!12},
+      arr/.style={-Latex, thick, line width=0.7pt},
+      phaselbl/.style={font=\small\bfseries\itshape, fill=white, inner sep=3pt},
+    ]
+    %% Phase 1 title
+    \node[phaselbl] at (0, 5.0) {Indexing (build once, then Merkle-diff updates)};
+
+    %% Indexing chain (vertical, centered)
+    \node[box] (repo)    at (0, 4.0) {\textbf{Repository}\\\scriptsize source files};
+    \node[box] (parse)   at (0, 2.7) {\textbf{\texttt{tree-sitter} parse}\\\scriptsize AST per source file};
+    \node[box] (extract) at (0, 1.4) {\textbf{Symbol + call-graph extraction}\\\scriptsize definitions, identifiers, call edges};
+    \node[box] (chunk)   at (0, 0.1) {\textbf{Chunking + embedding}\\\scriptsize code chunks $\to$ vectors};
+
+    \draw[arr] (repo)    -- (parse);
+    \draw[arr] (parse)   -- (extract);
+    \draw[arr] (extract) -- (chunk);
+
+    %% Three indices (shared band)
+    \node[idx] (bm25)   at (-3.4,-1.6) {\textbf{Lexical (BM25)}\\\scriptsize identifier + token matches};
+    \node[idx] (graph)  at ( 0,  -1.6) {\textbf{Call-graph index}\\\scriptsize caller / callee edges};
+    \node[idx] (vector) at ( 3.4,-1.6) {\textbf{Vector index}\\\scriptsize semantic similarity};
+
+    \draw[arr] (chunk.south) -- (bm25.north);
+    \draw[arr] (chunk.south) -- (graph.north);
+    \draw[arr] (chunk.south) -- (vector.north);
+
+    %% Phase separator + Phase 2 title
+    \draw[dashed, gray!70] (-5.0, -2.8) -- (5.0, -2.8);
+    \node[phaselbl] at (0, -3.1) {Retrieval (per agent call)};
+
+    %% Retrieval row (horizontal: tool -> hybrid -> results)
+    \node[tool] (tools)   at (-3.4, -4.6) {\textbf{\texttt{codebase\_search} /}\\\textbf{\texttt{codebase\_graph}}\\\scriptsize agent issues query};
+    \node[box]  (hybrid)  at ( 0,   -4.6) {\textbf{Hybrid retrieval}\\\scriptsize fuse, rerank, dedup};
+    \node[box]  (results) at ( 3.4, -4.6) {\textbf{Ranked results}\\\scriptsize paths + snippets + scores};
+
+    \draw[arr] (tools)  -- (hybrid);
+    \draw[arr] (hybrid) -- (results);
+
+    %% Indices feed into hybrid retrieval (downward fan-in)
+    \draw[arr] (bm25.south)   -- (hybrid.north west);
+    \draw[arr] (graph.south)  -- (hybrid.north);
+    \draw[arr] (vector.south) -- (hybrid.north east);
+  \end{tikzpicture}%
+  }% close \resizebox
+  \caption{Context-engine pipeline. The upper block runs once per repository on
+    first contact and re-runs incrementally on subsequent contacts via
+    Merkle-tree diffs over the working copy: \texttt{tree-sitter} produces an
+    AST per source file, an extractor walks the ASTs to collect definitions,
+    identifiers, and call edges, and code chunks are embedded into vectors;
+    the result is three indices populated in parallel. The lower block runs on
+    every agent call:
+    \texttt{codebase\_search} or \texttt{codebase\_graph} dispatches a query to
+    hybrid retrieval, which fuses hits across the three indices and returns a
+    ranked result list to the agent. Per-tool input and result schemas are
+    described in \S\ref{sec:system-engine}.}
+  \label{fig:engine-pipeline}
+\end{figure}
+
+\textbf{Agent-facing tools.} \texttt{codebase\_search} takes a natural-language query plus a retrieval strategy (vector, lexical, graph, or hybrid) and returns a ranked list of code chunks, each carrying file path, snippet, relevance score, and the index that produced it; a local overlay drops paths the agent has deleted and flags stale ones. \texttt{codebase\_graph} takes a symbol and traverses the call-graph index, returning callers and callees grouped by direction, each carrying the defining file path and the distance from the query node.
+
+\textbf{ON versus OFF concretely.} SC-ON exposes both
+\texttt{codebase\_search} and \texttt{codebase\_graph} to the agent alongside
+the file I/O, shell, and search tools listed in \S\ref{sec:system-harness};
+SC-OFF removes exactly those two tools from the schema and leaves everything
+else identical (the rest of the tool set, the model, the prompt template, the
+sandbox, the scorer; \S\ref{sec:design-arms}). The toggle is the headless
+runner's command-line flag for the engine endpoint: present invokes SC-ON,
+absent invokes SC-OFF. The ablation surface is therefore ``with versus without
+the two engine tools,'' and the resolve, localization, and cost consequences of
+that surface live in \S\ref{sec:results-ablation}.
+
+\subsection{Comparator: OpenCode}
+\label{sec:system-opencode}
+
+OpenCode \citep{opencode2025} is an open-source coding agent: a single-LLM control loop with parallel tool dispatch and a fixed tool set built around \texttt{rg} (ripgrep), \texttt{read}, \texttt{glob}, and \texttt{bash}; no structural codebase index, no embedding-based search, no precomputed call-graph. In our evaluation, OpenCode runs in the same per-task container as the two SuperCoder arms, with Claude Opus~4.7 and the same 30-minute wall-clock cap (\S\ref{sec:design-sandbox}). The headline cross-harness comparison is \S\ref{sec:results-crossharness}.
+\FloatBarrier

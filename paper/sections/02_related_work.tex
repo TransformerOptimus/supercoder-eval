@@ -1,0 +1,101 @@
+% =========================================================================
+% §2 Related Work
+% Budget: ~1.0 pp
+% Drafting order: After Discussion (so we know what we positioned against).
+%
+% Content blueprint (RESEARCH_paper_outline.md §4 / §2):
+%   - Coding-agent harnesses: SWE-Agent, OpenHands/OpenDevin, Aider,
+%     AutoCodeRover, OpenCode, SuperCoder. One line each.
+%   - Retrieval approaches: agentic grep (Claude Code), file-dependency
+%     PageRank (Aider), semantic search (LocAgent, RepoGraph, CGM),
+%     persistent structural index (this work + Augment / code-review-graph).
+%   - Localization metrics: LocAgent / Agentless / SWE-Explore / TRAJEVAL.
+%     Note the field's move toward stage-decomposed trajectory metrics;
+%     anchor for our View B.
+%   - SWE-bench family + integrity: SWE-bench / Verified / PolyBench / Pro /
+%     SWE-bench+ / Illusion. The rising leak-audit bar.
+%   - One sentence on SWE-Agent exclusion ("role in benchmark construction").
+%   - One sentence on closed-source scope.
+%
+% Constraints:
+%   - One paragraph per cluster, not a literature dump.
+%   - Cite TRAJEVAL + SWE-Explore as the methodological anchor for View B.
+% =========================================================================
+
+\section{Related Work}
+\label{sec:related}
+
+\textbf{Coding-agent harnesses.} SWE-agent \citep{sweagent2024} introduced the
+agent-computer-interface framing on top of a single-LLM control loop; OpenHands
+\citep{openhands2025}, formerly OpenDevin, generalized the platform with sandboxed
+execution and multi-agent coordination; Aider \citep{aider} drives file-level edits over a
+local git repository with a dependency-ranked repo map; AutoCodeRover
+\citep{autocoderover2024} pairs LLM reasoning with AST-aware code search and
+spectrum-based fault localization; OpenCode \citep{opencode2025} is the model-agnostic
+open-source TUI agent we use as the cross-harness comparator
+(\S\ref{sec:system-opencode}). SuperCoder, the harness this paper studies
+(\S\ref{sec:system-harness}), shares the parallel-tool-dispatch loop posture with these
+systems but ships a structural codebase index as a first-class tool, which prior
+measured harnesses do not. We exclude SWE-agent from the comparator set because its
+agent-computer-interface pipeline was used in SWE-bench's construction, creating
+circularity for an evaluation on SWE-bench-family tasks. Closed-source harnesses (Claude
+Code, Cursor, Windsurf) are out of scope by design; this study fixes the model
+(\S\ref{sec:design-model}) and varies the open-source harness configuration around it.
+
+\textbf{Retrieval approaches for code agents.} Four approach types appear in the recent
+literature. \emph{Agentic grep and read} drives OpenCode \citep{opencode2025} and similar
+terminal-loop agents that call ripgrep over the working copy; there is no structural
+codebase index. Sen et al.\ \citep{grepallyouneed2026} contrast grep with vector retrieval
+inside agentic loops on the LongMemEval memory-retrieval benchmark, with grep favored;
+their setting is non-code and the alternative they ablate against is dense retrieval, not
+a structural codebase index, but the question framing (does grep suffice inside an
+agentic harness?) is the closest prior to ours. \emph{Repository-level retrieval and
+planning} approaches predate the agent-harness wave: RepoCoder \citep{repocoder2023}
+iteratively retrieves over the whole repository for code completion, and CodePlan
+\citep{codeplan2024} stages multi-file edits as a planned sequence of repository-wide
+operations --- neither is built as an agent loop. \emph{File-dependency repo maps},
+exemplified by Aider's PageRank-ranked repo map
+\citep{aider}, surface candidate files by import and reference structure but do not index
+symbol-level semantics. \emph{Semantic and graph search} combines code-chunk embeddings
+with typed repository graphs: LocAgent \citep{locagent2025} equips an LLM agent with
+graph-search tools over a heterogeneous code graph, RepoGraph \citep{repograph2024} plugs
+a repository-wide code graph into SWE-agent and AutoCodeRover, and the Code Graph Model
+line \citep{cgm2025} integrates the graph directly into an LLM's attention via an
+adapter; Agentless \citep{agentless2024} reaches comparable SWE-bench-Lite scores with a
+non-agentic three-phase localization-and-repair pipeline. \emph{Structural codebase
+indices} have been adopted in commercial coding-agent stacks; this paper provides the
+first leak-audited, model-controlled causal ablation of one inside an open-source harness
+(\S\ref{sec:results-ablation}).
+
+\textbf{Localization metrics for code agents.} LocAgent \citep{locagent2025} and
+Agentless \citep{agentless2024} report file-level acc@$k$ as the primary localization
+metric. The field has been moving toward stage-decomposed trajectory metrics: TRAJEVAL
+\citep{trajeval2026} decomposes agent trajectories into search, read, and edit phases
+with per-stage precision and recall, and SWE-Explore \citep{sweexplore2026} isolates
+repository exploration as a sub-task with coverage and ranking metrics against
+trajectory-derived ground truth. Our View~B
+(\S\ref{sec:design-localization}, \S\ref{sec:results-crossharness}) sits in the same
+field move: we strip engine-result paths from the surfaced set so that an SC-ON acc@$k$
+counts the same kind of agent-targeted surface as an OpenCode acc@$k$. This paper does
+not propose a new localization metric; it adopts the field-trend rule and applies it
+uniformly across arms.
+
+\textbf{SWE-bench family and benchmark integrity.} SWE-bench \citep{swebench2024}
+introduced the canonical 2{,}294-issue Python benchmark; SWE-bench Verified
+\citep{swebenchverified2024} released a 500-issue human-screened subset. Two recent
+benchmark-expansion lines extend coverage: SWE-PolyBench \citep{swepolybench2025} is a
+multi-language SWE-bench-style benchmark with a Verified subset, and SWE-bench Pro
+\citep{swebenchpro2025} provides a harder long-horizon set; we use the Verified subset of
+SWE-PolyBench and the public subset of SWE-bench Pro
+(\S\ref{sec:design-benchmarks}). Three integrity audits motivate our hardening protocol:
+SWE-bench+ \citep{swebenchplus2024} documented solution leakage in issue text and
+weak-test pass-throughs in the original SWE-bench; the SWE-bench Illusion paper
+\citep{swebenchillusion2025} showed that strong scores partly reflect memorization of
+in-benchmark repositories; and Garg et al.\ \citep{savingswebench2025} mutate the formal
+GitHub-issue specification into realistic user-style queries derived from chat-agent
+telemetry, and report capability overestimation above 50\% for some models on
+public benchmarks --- a phrasing-ecological-validity threat that detect-and-exclude
+hardening (this paper) does not address. The per-cell scrub, fail-closed gate, and S1
+reviewer pass in \S\ref{sec:integrity} sit in this audit tradition; the public exclusion
+ledger (\S\ref{sec:integrity-ledger}) extends it by releasing per-cell evidence for every
+dropped cell.

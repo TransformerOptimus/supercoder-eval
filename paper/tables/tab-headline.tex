@@ -1,0 +1,18 @@
+% Table 1: Headline metrics across three arms.
+% Caption + label live at the \input site in 06_results.tex.
+% All numbers are mean of seed means across three seeds (0, 1, 2).
+% Acc@5 is View B (DB canonical, loc_metric='agent_targeted_v3').
+\begin{tabular}{lccc}
+\toprule
+Metric & SC-ON & SC-OFF & OpenCode \\
+\midrule
+Resolve \%                          & \textbf{50.4} & 41.9   & 45.3            \\
+Loc acc@5 (View B)                  & \textbf{84.5} & 44.3   & 75.3            \\
+Recall@5                            & \textbf{0.611}& 0.330  & 0.601           \\
+$\$$/solved                         & \textbf{\$2.30} & \$2.84 & \$2.92        \\
+$\$$/cell (mean)                    & \textbf{\$1.15} & \$1.19 & \$1.32        \\
+Turns (mean)                        & \textbf{28.3} & 36.2   & 36.0            \\
+Tokens, k (mean)                    & \textbf{10.1} & 11.1   & 14.0            \\
+Wall-clock, min (mean)              & \textbf{4.5}  & 5.5    & 5.4             \\
+\bottomrule
+\end{tabular}

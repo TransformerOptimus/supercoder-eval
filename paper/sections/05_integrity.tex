@@ -1,0 +1,140 @@
+% =========================================================================
+% §5 Integrity & Threats to Validity
+% Budget: ~1.0 pp
+% Drafting order: Right after Experimental Design.
+% Genre precedent: Agentless §7 + SpecRover V-A "Data Memorization".
+%
+% Content blueprint (RESEARCH_paper_outline.md §4 / §5):
+%   - 5.1 Pre-run hardening: URL redaction; per-cell git scrub
+%     (refs -> physical prune); fail-closed gate (scrub=DIRTY aborts).
+%   - 5.2 Post-run audit (S1 reviewer pass): re-ran leak_audit.py over
+%     386 archived traces. Found 5 additional git_history_leak cells
+%     (past-commit `git show` of a gold-file diff). Excluded outcome-blind.
+%     Per-arm: SC-ON 1, SC-OFF 2, OpenCode 2. Two had resolved=1.
+%     Corrects an earlier "SC-ON never leaked" belief. Network-fetch audit
+%     re-run and clean.
+%   - 5.3 Exclusion taxonomy: 26 cells across 8 categories. Per-arm:
+%     SC-ON 7, SC-OFF 9, OpenCode 10. scrub_failed whole-instance balanced
+%     (4/4/4).
+%   - 5.4 Public ledger: released exclusion_ledger.csv (cell_id,
+%     instance_id, harness, arm, exclusion_reason, evidence; e.g.
+%     `git show <hash> -> <gold file>`).
+%   - 5.5 Threats: n=75 paired limit; 3-of-5 language coverage (no
+%     JS/TS); in-ancestry leak residual; provider-truncation asymmetry
+%     (5/5 on SC arms, 0 on OpenCode; excluded so doesn't bias rates);
+%     localization extractor sensitivity (dual-view reported).
+%     [Single-seed threat dropped in 2026-06-16 multi-seed rewrite.]
+%
+% Tables (under tables/):
+%   - tab-exclusion-taxonomy.tex: 5 cols (Category, SC-ON, SC-OFF,
+%     OpenCode, Total) over 5 rows + totals.
+%
+% Constraints:
+%   - Public ledger is foregrounded as a credibility artifact.
+%   - The S1 finding that SC-ON also leaked once is stated plainly.
+% =========================================================================
+
+\section{Integrity and Threats to Validity}
+\label{sec:integrity}
+
+The integrity load for this study sits in four places: pre-run hardening of the per-cell
+sandbox, a post-run audit that re-checked every kept cell for residual leakage, the
+exclusion taxonomy that explains which cells were dropped and why, and a named threats list
+that points the reader at the residual concerns the audit could not eliminate. The
+released artifacts that back this section are \texttt{data/exclusion\_ledger.csv} (the
+exclusion ledger), \texttt{scoring/leak\_audit.py} (the auditor), and
+\texttt{scoring/localization.py} (the localization extractor that emits both views).
+
+\subsection{Pre-run hardening}
+\label{sec:integrity-hardening}
+
+Two mechanisms ran before every cell. \textbf{URL redaction.} Self-links in problem
+statements were stripped at spec-build time, so the agent could not navigate to a
+canonical-fix page through the prompt. \textbf{Git scrub.} Every cell starts from a
+sandbox whose repo has the gold-fix commit and its descendants stripped. Refs deletion
+alone is not sufficient: \texttt{git show <hash>} still recovers any object reachable in
+the object database, so the hardened path runs \texttt{git gc --prune=now} to physically
+remove the dropped objects. A post-scrub object-set check then verifies that no
+future-commit objects remain reachable; if any do, the cell is marked
+\texttt{scrub=DIRTY} and aborted before the agent runs. Only \texttt{scrub=CLEAN} cells
+execute. In the released set, 12 cells tripped this fail-closed gate and appear in the
+ledger as \texttt{scrub\_failed}; the trip is whole-instance and arm-independent, so the
+distribution is balanced across the three arms (Table~\ref{tab:exclusion-taxonomy}).
+
+\subsection{Post-run audit}
+\label{sec:integrity-audit}
+
+After the run completed we re-executed \texttt{leak\_audit.py} over 386 archived
+traces from the released set as an S1 reviewer pass. The audit found 5 additional
+\texttt{git\_history\_leak} cells: the agent had invoked \texttt{git show <historical-hash>}
+on a past commit whose diff touches a gold file. These are commits in the base history
+that pre-date the scrub window; the scrub cannot remove them without changing the task
+specification. The 5 cells were excluded outcome-blind (any arm, any outcome); the
+per-arm breakdown and which were resolved=1 appear in the ledger
+(Table~\ref{tab:exclusion-taxonomy}, and \texttt{data/exclusion\_ledger.csv}). Post-exclusion,
+the residual impact on every reported metric is under 1\,pp, and no metric ordering flips;
+the triple-intersection paired-$n$ moved from 79 to 75. A network-fetch audit was re-run on
+the same 386 traces and came back clean (no kept cell fetched a high-severity hosting URL).
+The in-ancestry class itself (gold fix reachable in base history) is a dataset limitation
+that detect-and-exclude can shrink but not eliminate; the sub-1\,pp figure is what survives
+in the released set.
+
+\subsection{Exclusion taxonomy and public ledger}
+\label{sec:integrity-ledger}
+
+Twenty-six cells were excluded across the five categories that appear in the public
+ledger (Table~\ref{tab:exclusion-taxonomy}). Every excluded cell is removed before
+resolve, cost, and localization rates are computed; only legit cells enter denominators
+(\S\ref{sec:design-metrics}). Three balance points are worth surfacing.
+\texttt{scrub\_failed} is whole-instance balanced across arms, which is the posture the
+fail-closed gate is designed to produce. \texttt{provider\_truncation} is arm-asymmetric:
+all 5 exclusions land on SuperCoder arms, flagged again in \S\ref{sec:integrity-threats}.
+\texttt{git\_history\_leak} (flagged above) and \texttt{leak\_detected} (OpenCode only)
+round out the ledger; per-arm counts for every category appear in
+Table~\ref{tab:exclusion-taxonomy}. The public artifact
+\texttt{data/exclusion\_ledger.csv} carries one row per excluded cell with columns
+\texttt{cell\_id}, \texttt{instance\_id}, \texttt{harness}, \texttt{arm},
+\texttt{exclusion\_reason}, and \texttt{evidence}; the \texttt{evidence} column quotes
+the concrete trigger (for \texttt{git\_history\_leak} rows, the literal
+\texttt{git show <hash>} invocation against the gold file). The ledger has been through a
+three-check audit pass: structural (every excluded \texttt{cell\_id} resolves in the main
+DB), forensic (each \texttt{git\_history\_leak} row hand-confirmed against its trace),
+and gold-set verification (every \texttt{instance\_id}'s gold file set matches the
+benchmark specification).
+
+\begin{table}[!tbp]
+  \centering
+  \caption{Exclusion taxonomy. Counts recomputed from
+    \texttt{data/exclusion\_ledger.csv}; row totals sum to 26 across 5 categories. All
+    excluded cells are removed from rate denominators.}
+  \label{tab:exclusion-taxonomy}
+  \input{tables/tab-exclusion-taxonomy}
+\end{table}
+
+\FloatBarrier
+\subsection{Threats to validity}
+\label{sec:integrity-threats}
+
+Six residual threats survive the hardening and the audit. \textbf{Paired-$n$ limits.}
+Effective denominators are 75 (triple-intersection), 80 (SC-ON vs.\ SC-OFF), and 78
+(SC-ON vs.\ OpenCode), defined in \S\ref{sec:design-scope}; resolve-level paired tests
+are under-powered at these sizes, and \S\ref{sec:results} states that limitation at every
+test. \textbf{Language coverage.} Three of the five SWE-PolyBench languages are
+represented (Go, Java, Python); JavaScript and TypeScript were not run, so
+generalization beyond these three is not warranted.
+\textbf{\texttt{provider\_truncation} asymmetry.} All 5 truncation exclusions fall on the
+SuperCoder arms (none on OpenCode); per-arm counts are in
+Table~\ref{tab:exclusion-taxonomy}. Because the cells are excluded rather than scored,
+the asymmetry does not directly bias the reported rates, but what was lost differs across
+arms and is worth flagging. \textbf{Localization extractor sensitivity.} The metric
+admits two defensible computations; we report both views throughout
+(\S\ref{sec:design-localization}, \S\ref{sec:results}), and the dual-view disclosure is
+the mitigation. \textbf{In-ancestry leak residual.} Where the gold fix is reachable in
+base history, the scrub cannot remove it without altering the task; detect-and-exclude
+(\S\ref{sec:integrity-audit}) shrinks but cannot eliminate this class.
+\textbf{Issue-text phrasing realism.} We feed the agent the formal GitHub-issue text from
+the upstream benchmarks; \citet{savingswebench2025} show that mutating issue text into
+realistic chat-style queries derived from agent telemetry can drop measured pass rates by
+over 50\% on some models, an ecological-validity gap that detect-and-exclude does not
+address. The reported absolute resolve rates should be read as benchmark-conditional;
+the within-harness ablation is robust to this gap because both arms see identical text.

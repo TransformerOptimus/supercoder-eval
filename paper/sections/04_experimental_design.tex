@@ -1,0 +1,221 @@
+% =========================================================================
+% §4 Experimental Design
+% Budget: ~1.5 pp
+% Drafting order: After §6 Results.
+%
+% Layout decisions (locked):
+%   - §4.1 carries a held-constant table (tables/tab-arms.tex). 30-minute
+%     wall-clock cap is the only enforced cap; no turn cap, no $ cap.
+%   - §4.4 paired-n disclosure is mandatory: triple-intersection n=75
+%     (descriptive cross-arm); pairwise ON vs OFF n=80; pairwise ON vs
+%     OpenCode n=78 (for pairwise tests). Each test in §6 cites the
+%     denominator that applies.
+%   - §4.5 honest disclosure: sandbox backend and provider gateway are
+%     internal; per-cell cost and wall-clock columns are released.
+%   - §4.6 metric definitions in tables/tab-metrics.tex.
+%   - §4.7 prose mechanism + Algorithm 1 (View A vs View B side-by-side, role-aware).
+%   - §4.8 stats methodology: Wilcoxon signed-rank (two-sided, normal approx,
+%     tie corrected, NO continuity correction) on per-instance pass@1 averaged
+%     across three seeds. Matches scipy.stats.wilcoxon defaults.
+%   - §4.9 pilot: one paragraph; no appendix table.
+%
+% Verified numbers (recomputed 2026-06-15):
+%   - Per-language: Go 34 / Java 20 / Python 37 (sum 91).
+%   - Benchmarks: SWE-PolyBench Verified 38 + SWE-bench-Pro 53.
+%   - Wall-clock max: SC-ON 19 min; SC-OFF 30 (1 cell at cap); OpenCode 30
+%     (1 cell at cap).
+% =========================================================================
+
+\section{Experimental Design}
+\label{sec:design}
+
+This section defines the arms, the model, the benchmarks, the run scope, the sandbox and
+cost-capture infrastructure, the metrics, the localization-view extraction rule, the
+statistical methods, and the narrowed pilot. \S\ref{sec:results} consumes these
+definitions verbatim.
+
+\subsection{Arms}
+\label{sec:design-arms}
+
+We compare three arms on the same instance set: \textbf{SC-ON} (SuperCoder harness with
+the context engine's tools available), \textbf{SC-OFF} (same harness, same prompts, with
+\texttt{codebase\_search} and \texttt{codebase\_graph} removed from the toolset), and
+\textbf{OpenCode} (an independent open-source harness whose retrieval is built around
+\texttt{ripgrep} and file reads, with no structural index). The only thing
+that changes between SC-ON and SC-OFF is the engine toolset, which gives the ablation its
+causal reading. The cross-harness comparison against OpenCode tests whether SC-ON's
+behavior is reproducible by an alternative open-source harness running the same model.
+
+Across all three arms we hold the model (Claude Opus~4.7), the per-task sandbox image, the scorer, and the 30-minute wall-clock cap fixed; no turn or dollar cap is enforced. Each arm runs three seeds. SC-ON exposes the two engine tools (\texttt{codebase\_search}, \texttt{codebase\_graph}); SC-OFF removes exactly those two from the toolset and leaves everything else identical; OpenCode is an independent harness with its own tool surface (\S\ref{sec:system-opencode}).
+
+\subsection{Model}
+\label{sec:design-model}
+
+All three arms run Claude Opus 4.7 \citep{claudeopus47} (\texttt{claude-opus-4-7}) across three seeds. Fixing the
+model removes capability as a moving part, so any cross-harness difference has to come
+from the harness or its retrieval, not from a stronger backbone. Single-model scope is a
+limitation we acknowledge in \S\ref{sec:integrity} and \S\ref{sec:discussion}; the
+control trade is intentional.
+
+\subsection{Benchmarks}
+\label{sec:design-benchmarks}
+
+The instance set draws from two public benchmarks: SWE-PolyBench Verified
+\citep{swepolybench2025} contributes the multi-language coverage (Go, Java, Python), and
+SWE-bench-Pro \citep{swebenchpro2025} contributes longer-context Python tasks. Both
+descend from the SWE-bench family \citep{swebenchverified2024}. We do not use SWE-Agent
+or its trajectories as a comparator because of its role in benchmark construction; the
+open-source harness comparator is OpenCode \citep{opencode2025}.
+
+\subsection{Run scope}
+\label{sec:design-scope}
+
+The study runs on 91 instances across three languages: 34 Go, 20 Java, 37
+Python. JavaScript and TypeScript are not covered (limitation logged in
+\S\ref{sec:integrity}). The run uses three seeds, pass@1 per seed; statistics are
+reported as the mean of seed means with across-seed standard deviation as a variance
+estimate, and seed-variance context follows \citep{bjarnason2026randomness}.
+
+\paragraph{Paired-$n$ denominators.}
+\S\ref{sec:results} uses three paired-$n$ values, and each one carries a specific
+meaning. The \emph{triple-intersection} set is the subset of instances on which all
+three arms produced a legit cell ($n=75$); this set is used for descriptive cross-arm
+context where all three rows of a table need to refer to the same instances. Pairwise
+significance tests use the \emph{pairwise} denominator instead, because dropping
+instances that are legit in two arms simply because the third arm failed wastes paired
+signal. The pairwise denominators are 80 (SC-ON vs.\ SC-OFF) and 78 (SC-ON vs.\
+OpenCode). Every paired test in \S\ref{sec:results} cites the $n$ that applies to it.
+
+\subsection{Sandbox and cost capture}
+\label{sec:design-sandbox}
+
+Each cell ran inside a per-task isolated container with a uniform image across arms, on
+an internal sandbox backend. The backend's configs and image spec are not part of the
+public release. A unified provider gateway captured token-level cost on every LLM call,
+which means \$/cell and \$/solved are computed against the same accounting for all three
+arms. Per-cell \texttt{cost\_usd}, \texttt{total\_cost\_usd}, \texttt{tokens\_total}, and
+\texttt{wall\_clock\_secs} are released in the public DB. The 30-minute wall-clock
+cap fired on two cells in the released set (one SC-OFF and one OpenCode); SC-ON's
+longest legit cell ran 19 minutes. The released reproducibility kit lives under
+\texttt{data/}; per-cell patches, per-trace JSON, prompts, and sandbox image references
+are held back because they include licensed repository source and internal harness
+configuration. Resolve is the public DB's \texttt{resolved} column, sourced from the
+upstream benchmark scorers; \$/cell, \$/solved, turns, tokens, and wall-clock are
+released per-cell.
+
+\subsection{Metrics}
+\label{sec:design-metrics}
+
+The primary outcome is \textbf{resolve}; supporting outcomes are localization, effort,
+and cost. Table~\ref{tab:metrics} states the formal definitions. Localization is
+reported under View~B by default (\S\ref{sec:design-localization}); effort and cost
+metrics are per-cell means on legit cells from the unified provider gateway
+(\S\ref{sec:design-sandbox}).
+
+\begin{table}[!tbp]
+  \centering
+  \caption{Metric definitions. Resolve is the public DB's \texttt{resolved} column,
+    sourced from the upstream benchmark scorers (F2P denotes fail-to-pass tests; P2P
+    denotes pass-to-pass tests). Localization is computed under View~B
+    (\S\ref{sec:design-localization}); effort and cost are per-cell means on legit cells.}
+  \label{tab:metrics}
+  \input{tables/tab-metrics}
+\end{table}
+
+\FloatBarrier
+\subsection{Localization views}
+\label{sec:design-localization}
+
+\begin{algorithm}[!tbp]
+  \footnotesize
+  \caption{Localization extraction. The trace is a sequence of message events; each
+  event carries a tool name, a \emph{role} ($\textsc{Args}$ for tool-call arguments or
+  $\textsc{Result}$ for tool-result content), and the path tokens extracted from that
+  channel. View~A is the legacy rule: every path the agent saw counts as surfaced.
+  View~B drops only paths whose provenance is a \emph{result} of an engine call
+  ($\texttt{codebase\_search}$ or $\texttt{codebase\_graph}$); the engine's
+  natural-language query arguments are kept in both views, because the agent did
+  produce those tokens. The difference between the two views is the highlighted line.}
+  \label{alg:viewb}
+  \begin{algorithmic}[1]
+    \Require trace $T$ as a sequence of events $(\textit{tid}, \textit{tool}, \textit{role}, \textit{paths})$ where $\textit{role} \in \{\textsc{Args}, \textsc{Result}\}$
+    \Ensure $\mathit{surfaced} \subseteq \mathit{files}$
+    \Statex \textbf{Engine tools:} $\mathcal{E} \gets \{\texttt{codebase\_search},\, \texttt{codebase\_graph}\}$
+    \Statex
+    \Function{SurfaceViewA}{$T$}
+      \State $S \gets \emptyset$
+      \For{$(\textit{tid}, \textit{tool}, \textit{role}, \textit{paths}) \in T$}
+        \State $S \gets S \cup \textit{paths}$ \Comment{every surfaced path counts}
+      \EndFor
+      \State \Return $S$
+    \EndFunction
+    \Statex
+    \Function{SurfaceViewB}{$T$}
+      \State $S \gets \emptyset$
+      \For{$(\textit{tid}, \textit{tool}, \textit{role}, \textit{paths}) \in T$}
+        \If{$\lnot\big(\textit{tool} \in \mathcal{E} \,\land\, \textit{role} = \textsc{Result}\big)$} \Comment{\textbf{the only difference}: engine-result paths skipped; engine args kept}
+          \State $S \gets S \cup \textit{paths}$
+        \EndIf
+      \EndFor
+      \State \Return $S$
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+We score localization under two views and report under one. \textbf{View~A} (the legacy
+rule) counts every path the agent saw as a file the agent reached, including the
+candidate paths returned by engine result lists. \textbf{View~B} (agent-targeted)
+strips paths whose only provenance is an engine result list, while keeping the engine's
+natural-language query arguments. The motivation is that the engine's result list is a
+\emph{pointer}, not an arrival: the agent has to choose to grep, read, or edit one of
+those candidates for the path to enter the agent's actual trajectory. Treating the
+result list as a set of files the agent reached credits SC-ON for being shown a path
+while crediting OpenCode for grepping one, an asymmetry that inflates surfaced sets only
+for the arm whose engine produces such lists.
+
+Mechanically, the extractor tracks the \texttt{tool\_call\_id} of every surfaced path
+and drops the path if and only if its only provenance is a \texttt{codebase\_search} or
+\texttt{codebase\_graph} result token. Algorithm~\ref{alg:viewb} states the rule;
+View~A and View~B differ in exactly one line. The rule is applied uniformly to all three
+arms; SC-OFF and OpenCode emit no engine calls, so the rule is a strict no-op for them
+and only SC-ON's numbers move. We adopt View~B as the body's primary view because
+stage-decomposed trajectory metrics extend the file-level acc@$k$ posture of LocAgent
+\citep{locagent2025} and Agentless \citep{agentless2024} to mixed-action trajectories;
+the direction the field has been moving \citep{trajeval2026, sweexplore2026}. The
+precise algorithm and the fallback for missing \texttt{tool\_call\_id} are implemented
+in the released \texttt{scoring/localization.py}; the full View~A counterpart ships
+under \texttt{*\_view\_a} suffixed columns in the released results database.
+
+\FloatBarrier
+\subsection{Statistical methods}
+\label{sec:design-stats}
+
+Per-instance pass@1 is averaged across the three seeds, giving one value per instance per
+arm: for binary outcomes (resolve, acc@$k$) this value lies in $\{0, 1/3, 2/3, 1\}$; for
+continuous outcomes (cost, turns, tokens) it is the per-instance mean across seeds.
+\textbf{Paired tests} use the \textbf{Wilcoxon signed-rank test} (two-sided, normal
+approximation) on those per-instance pass@1 values, between arm pairs. McNemar does not
+apply: the per-instance pass@1 metric is no longer binary at the instance level. Per-arm
+aggregates are reported as the \textbf{mean of seed means} with the across-seed standard
+deviation as a variance estimate. Per-seed values for resolve appear in
+Table~\ref{tab:resolve-perseed}. The implementation is pure stdlib and lives in the
+released \texttt{analysis/stats.py}; zero differences are dropped under the standard
+Wilcoxon convention and no continuity correction is applied (matching
+\texttt{scipy.stats.wilcoxon}'s defaults). The body reports \emph{unadjusted}
+$p$-values across the ten paired tests in \S\ref{sec:results} (five metrics
+$\times$ two arm pairs); readers preferring a family-wise correction at
+$\alpha{=}0.05$ can apply Holm or Bonferroni at $m{=}10$ themselves.
+
+\subsection{Pilot disclosure}
+\label{sec:design-pilot}
+
+An earlier batch of runs evaluated two additional configurations that did not make it
+into the main study. \textbf{Aider} was dropped because it rebuilds the full prompt
+(repo-map plus file contents) on every turn, which defeats stable-prefix prompt
+caching --- a property structural to Aider's prompt-assembly path rather than a
+configuration we could tune around, and one that takes Aider out of the comparable
+cost band with the tool-using loops in this study. \textbf{Kimi K2.6} was dropped
+because its heavier retrieved context triggered a deterministic stream-decode failure
+cluster on heavy instances, taking those cells out of comparability with the rest of
+the grid. The pilot cells are released at
+\texttt{data/pilot/pilot\_results\_public.\{db,csv\}}.

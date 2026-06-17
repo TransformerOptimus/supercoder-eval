@@ -1,0 +1,18 @@
+% Table 2: Causal ablation (SC-ON vs SC-OFF), paired analysis across three seeds.
+% Pairwise paired-n for ON vs OFF is 80.
+% Paired tests use Wilcoxon signed-rank (two-sided, normal approximation) on
+% per-instance pass@1 averaged across seeds. $/solved is a per-arm aggregate;
+% no paired test applies. Acc@5 is View B (DB canonical).
+\begin{tabular}{lcccc}
+\toprule
+Metric                              & SC-ON          & SC-OFF & $\Delta$                       & Paired $p$ \\
+\midrule
+Resolve \%                          & 50.4           & 41.9   & $\mathbf{+7.9}$\,\textbf{pp}   & $\mathbf{0.003}$    \\
+Loc acc@5 (View B)                  & \textbf{84.5}  & 44.3   & $\mathbf{+39.6}$\,\textbf{pp}  & $\mathbf{<0.0001}$  \\
+Recall@5                            & \textbf{0.611} & 0.330  & $\mathbf{+0.281}$              & $\mathbf{<0.0001}$  \\
+Turns (mean)                        & 28.3           & 36.2   & $-8.3$                         & $\mathbf{<0.0001}$  \\
+Tokens, k (mean)                    & 10.1           & 11.1   & $-1.6$                         & $0.027$             \\
+$\$$/cell (mean)                    & \$1.15         & \$1.19 & $-\$0.118$                     & $0.73$ (null)       \\
+$\$$/solved                         & \$2.30         & \$2.84 & $-\$0.54$                      & n/a                 \\
+\bottomrule
+\end{tabular}

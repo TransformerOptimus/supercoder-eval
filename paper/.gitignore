@@ -1,0 +1,29 @@
+# LaTeX build artifacts
+*.aux
+*.log
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.out
+*.toc
+*.lof
+*.lot
+*.nav
+*.snm
+*.vrb
+*.run.xml
+*.bcf
+
+# Build output PDF — commit a versioned copy under release/ when arXiv-ready
+main.pdf
+
+# Build dir
+build/
+
+# IEEE class documentation — kept locally for reference, not shipped
+IEEEtran_HOWTO.pdf
+
+# OS
+.DS_Store

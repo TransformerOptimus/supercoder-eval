@@ -1,0 +1,18 @@
+% Table B: Metric definitions consumed in §6 Results.
+% Caption + label live at the \input site in 04_experimental_design.tex.
+% Resolved predicate: scoring/export.py:53-57. Localization definitions:
+% scoring/localization.py:159-174.
+\begin{tabular}{ll}
+\toprule
+Metric                   & Definition                                                                                  \\
+\midrule
+resolve                  & $\mathbf{1}[\text{F2P}_{\text{pass}}{=}\text{F2P}_{\text{tot}}{>}0 \land \text{P2P}_{\text{pass}}{=}\text{P2P}_{\text{tot}}]$ \\
+$\$/$cell                & per-cell \texttt{cost\_usd} (mean over legit cells, per arm)                                \\
+$\$/$solved              & $\sum_{\text{legit}} \text{cost\_usd} \;\big/\; \sum_{\text{legit}} \text{resolved}$, per arm \\
+turns                    & tool calls per cell                                                                         \\
+tokens                   & LLM input $+$ output tokens per cell                                                        \\
+acc@$k$                  & $\mathbf{1}[\,|\text{surfaced}_{1{:}k} \cap \text{gold}| > 0\,]$                             \\
+recall@$k$               & $|\text{surfaced}_{1{:}k} \cap \text{gold}| \,/\, |\text{gold}|$                             \\
+first-gold rank          & $\min\{\,i : \text{surfaced}_i \in \text{gold}\,\}$ (1-indexed; $\varnothing$ if no match)   \\
+\bottomrule
+\end{tabular}

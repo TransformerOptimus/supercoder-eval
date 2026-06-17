@@ -1,0 +1,15 @@
+% Table 4: Per-language exploratory stratification (mean of seed means across three seeds).
+% acc@5 is View B (DB canonical). Per-language n is per-arm legit
+% (ON/OFF/OpenCode), not the manifest count: SC-OFF and OpenCode each lose some
+% instances to outcome-blind exclusions (provider_truncation, leak_detected, etc.).
+\begin{tabular}{lcccccc}
+\toprule
+          & \multicolumn{3}{c}{Resolve \%} & \multicolumn{3}{c}{Loc acc@5 (View B)} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7}
+Language ($n_{\text{ON/OFF/OC}}$)  & SC-ON & SC-OFF & OpenCode & SC-ON & SC-OFF & OpenCode \\
+\midrule
+Go (29/29/31)     & \textbf{47.1} & 29.9 & 35.5 & \textbf{95.4} & 44.8 & 86.0 \\
+Java (20/20/19)   & \textbf{60.0} & 53.3 & 57.9 & \textbf{71.7} & 46.7 & 66.7 \\
+Python (35/33/31) & \textbf{47.6} & 45.5 & 47.3 & \textbf{82.9} & 42.4 & 69.9 \\
+\bottomrule
+\end{tabular}

@@ -1,0 +1,48 @@
+% =========================================================================
+% §0 Abstract
+% Budget: ~0.4 pp (single paragraph)
+% Drafting order: LAST (after Introduction is in shape).
+%
+% Content blueprint (RESEARCH_paper_outline.md §4 / Abstract):
+%   - Empirical question (does a structural codebase index in a fixed
+%     coding-agent harness change cost or resolve, controlled for model?)
+%   - Design (1 model held fixed: Opus 4.7; 3 arms: SC-ON / SC-OFF / OpenCode;
+%     SWE-PolyBench Verified + SWE-bench-Pro; leak-audited; paired n=75)
+%   - Headline numbers (multi-seed): View B acc@5 ablation +39.6 pp paired,
+%     p<0.0001; resolve ablation +7.9 pp paired, p=0.003; per-cell cost
+%     statistically null. [Updated 2026-06-17 after multi-seed rewrite.]
+%   - Cross-harness: matches OpenCode on resolve and View B acc@5 at no
+%     cost penalty (qualitative; no explicit numbers in abstract).
+%   - Released artifacts: ledger, leak-audit script, dual-view extractor,
+%     results DB.
+%
+% Constraints:
+%   - Cost is supporting evidence, not the headline.
+%   - No marketing voice.
+%   - Multi-seed posture (three seeds); abstract carries no seed-variance
+%     discussion. Seed scope stated once in the design sentence.
+%   - No honest negatives in abstract (live in Results + Discussion).
+%   - No citations, no cross-refs.
+% =========================================================================
+
+\begin{abstract}
+Coding agents now interleave LLMs with retrieval over the working repository, and
+retrieval implementations vary widely across deployed harnesses. Inside a fixed
+coding-agent harness on a fixed model, does adding a structural codebase index actually
+change cost or resolve? We ran three arms (the harness with the index, the same harness
+without it, and an agentic-grep comparator) on SWE-PolyBench Verified and SWE-bench Pro
+with Claude Opus~4.7 \citep{claudeopus47} held fixed throughout, across three seeds, inside a leak-audited
+per-task sandbox. The within-harness ablation produces a large localization
+gain and a statistically separated resolve gain, with no cost penalty per cell and lower
+cost per solve. The cross-harness check shows that the index does not regress against an
+agentic-grep baseline on resolve or localization, again at no cost penalty. We release
+the per-cell exclusion ledger, the leak-audit script, the localization extractor, and the
+results database. The deployment question for a structural codebase index is thus not
+whether it is too expensive to run (across seeds, the index lands at a lower \$/solved
+than agentic grep) but whether the workload includes multi-file changes where structural
+ranking pays off.
+\end{abstract}
+
+\vspace{0.3em}
+\noindent\textbf{Keywords:} coding agents, code retrieval, structural codebase index,
+causal ablation, SWE-bench.

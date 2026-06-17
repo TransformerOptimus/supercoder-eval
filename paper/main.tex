@@ -1,0 +1,110 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+% --- Citation style ---------------------------------------------------------
+% natbib (numeric, ordered by appearance, compressed runs) so every
+% \citep{...} / \citet{...} call in the section files works unchanged.
+% Bibstyle `unsrtnat` is the natbib-compatible IEEE-style numeric-by-order.
+\PassOptionsToPackage{numbers,sort&compress}{natbib}
+\usepackage{natbib}
+
+% --- Core packages ----------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{microtype}
+\usepackage[hypcap=true]{caption}
+\usepackage{hyperref}
+
+% --- Algorithms / units -----------------------------------------------------
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{siunitx}
+
+% --- TikZ / pgfplots (figures are inline TikZ - no external image files) ----
+\usepackage{tikz}
+\usetikzlibrary{positioning, shapes.geometric, arrows.meta, fit}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
+
+% --- Float discipline -------------------------------------------------------
+\usepackage{placeins}
+
+% --- Last-page two-column balance ------------------------------------------
+% flushend auto-equalises the columns on the final page (avoids the
+% half-empty right column the IEEEtran HOWTO warns about).
+\usepackage{flushend}
+
+% --- Section heading typography --------------------------------------------
+% Override IEEE default (Roman numerals + small-caps + centered) with a
+% bold + Arabic + left-aligned look. Affects styling only.
+\usepackage{titlesec}
+\titleformat{\section}
+  {\normalfont\large\bfseries}{\thesection}{0.8em}{}
+\titleformat{\subsection}
+  {\normalfont\normalsize\bfseries}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\itshape}{\thesubsubsection}{0.8em}{}
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\arabic{section}.\arabic{subsection}.\arabic{subsubsection}}
+
+% --- Line spacing: 4% extra to relieve the IEEE 10pt density --------------
+\linespread{1.04}
+
+% --- Tighter float spacing -------------------------------------------------
+% IEEEtran defaults stack textfloatsep (~20pt) + caption skips (~10pt) into
+% visible gaps between top-of-column figures/tables and the body text below.
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{0pt}
+
+% --- Custom commands -------------------------------------------------------
+% \semibold is just \textbf on the Times font (pdfliteral stroke tricks
+% destroyed the title block; keep the safe path).
+\newcommand{\semibold}[1]{\textbf{#1}}
+
+% ============================================================================
+\title{Code Isn't Memory: A Structural Codebase Index Inside a Coding Agent}
+
+\author{%
+\IEEEauthorblockN{\textbf{Ishaan Bhola}}
+\IEEEauthorblockA{\textit{SuperAGI Research}}
+\and
+\IEEEauthorblockN{\textbf{Adithyan Krishnan}}
+\IEEEauthorblockA{\textit{SuperAGI Research}}
+\and
+\IEEEauthorblockN{\textbf{Sravanth Kurmala}}
+\IEEEauthorblockA{\textit{SuperAGI Research}}
+\and
+\IEEEauthorblockN{\textbf{Mukunda NS}}
+\IEEEauthorblockA{\textit{SuperAGI Research}}
+}
+
+\begin{document}
+
+\maketitle
+
+\input{sections/00_abstract}
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_system}
+\input{sections/04_experimental_design}
+\input{sections/05_integrity}
+\input{sections/06_results}
+\input{sections/07_discussion}
+
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+
+% \input{sections/08_appendices}  % kept out of build; content lives in released artifacts
+
+\end{document}

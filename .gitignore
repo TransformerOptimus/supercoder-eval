@@ -1,0 +1,30 @@
+# Secrets / local config — never publish
+.env
+.env.*
+*.key
+*.pem
+
+# Logs and scratch
+*.log
+__pycache__/
+*.pyc
+.DS_Store
+
+# Internal-only artifacts (belt-and-suspenders; not copied here)
+backups/
+results/
+eval.db
+
+# LaTeX build artifacts (paper rebuilds from source via paper/Makefile)
+paper/main.aux
+paper/main.bbl
+paper/main.blg
+paper/main.fdb_latexmk
+paper/main.fls
+paper/main.out
+paper/main.synctex.gz
+# main.pdf is tracked so readers can view the rendered paper without building.
+
+# Local-only state (editor / tooling / sessions)
+.claude/
+.vscode/

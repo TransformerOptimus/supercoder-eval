@@ -1,0 +1,52 @@
+cff-version: 1.2.0
+message: "If you use this artifact, please cite the accompanying tech report."
+title: "SuperCoder-Eval: a localization-ablation study of a persistent structural code index for SWE agents"
+abstract: >-
+  Released metrics and analysis code for an evaluation of a persistent
+  call-graph + embedding code index (SuperCoder) against an index-disabled
+  ablation and an agentic-grep comparator (OpenCode), on SWE-PolyBench and
+  SWE-bench-Pro. Publishes metrics + instance IDs only (no benchmark content);
+  analysis-reproducible from the released database.
+authors:
+  - family-names: "Bhola"
+    given-names: "Ishaan"
+    affiliation: "SuperAGI Research"
+  - family-names: "Krishnan"
+    given-names: "Adithyan"
+    affiliation: "SuperAGI Research"
+  - family-names: "Kurmala"
+    given-names: "Sravanth"
+    affiliation: "SuperAGI Research"
+  - family-names: "NS"
+    given-names: "Mukunda"
+    affiliation: "SuperAGI Research"
+type: software
+license: MIT
+repository-code: "https://github.com/TransformerOptimus/supercoder-eval" #TODO: add the correct repository
+date-released: "2026-06-17" #TODO: add the correct date
+keywords:
+  - coding-agents
+  - code-retrieval
+  - structural-codebase-index
+  - causal-ablation
+  - SWE-bench
+preferred-citation:
+  type: article
+  title: "Code Isn't Memory: A Structural Codebase Index Inside a Coding Agent"
+  authors:
+    - family-names: "Bhola"
+      given-names: "Ishaan"
+      affiliation: "SuperAGI Research"
+    - family-names: "Krishnan"
+      given-names: "Adithyan"
+      affiliation: "SuperAGI Research"
+    - family-names: "Kurmala"
+      given-names: "Sravanth"
+      affiliation: "SuperAGI Research"
+    - family-names: "NS"
+      given-names: "Mukunda"
+      affiliation: "SuperAGI Research"
+  year: 2026
+  # identifiers:
+  #   - type: other
+  #     value: "arXiv:XXXX.XXXXX"   # add arXiv id when assigned

@@ -47,6 +47,7 @@ preferred-citation:
       given-names: "Mukunda"
       affiliation: "SuperAGI Research"
   year: 2026
-  # identifiers:
-  #   - type: other
-  #     value: "arXiv:XXXX.XXXXX"   # add arXiv id when assigned
+  identifiers:
+    - type: other
+      value: "arXiv:2606.22417"
+      description: "arXiv preprint"

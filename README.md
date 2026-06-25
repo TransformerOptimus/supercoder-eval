@@ -232,6 +232,7 @@ dataset; this repo intentionally ships no task content.
 
 ## Citation
 
-See `CITATION.cff`. Source repository:
-<https://github.com/TransformerOptimus/supercoder-eval>. The arXiv identifier
-will be added once the preprint is posted.
+See `CITATION.cff`.
+
+- **arXiv preprint:** <https://arxiv.org/abs/2606.22417>
+- **Source repository:** <https://github.com/TransformerOptimus/supercoder-eval>
